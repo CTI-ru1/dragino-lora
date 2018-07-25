@@ -5,6 +5,9 @@ rm -rf delete_old_logs.ash check_ssh.ash gaia
 wget https://raw.githubusercontent.com/CTI-ru1/dragino-lora/master/dragino-utils/check_ssh.ash
 chmod a+x checkssh.ash
 
+wget https://raw.githubusercontent.com/CTI-ru1/dragino-lora/master/dragino-utils/.profile
+chmod a+x .profile
+
 wget https://raw.githubusercontent.com/CTI-ru1/dragino-lora/master/dragino-utils/delete_old_logs.ash
 chmod a+x delete_old_logs.ash
 
