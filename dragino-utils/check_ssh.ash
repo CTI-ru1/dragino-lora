@@ -1,3 +1,4 @@
+source /root/.profile
 PID=$(ps w | grep -e "[s]sh -i /root/dragino" | head -n 1 | awk '{print $1}')
 if [ -z "$PID" ]
 then
