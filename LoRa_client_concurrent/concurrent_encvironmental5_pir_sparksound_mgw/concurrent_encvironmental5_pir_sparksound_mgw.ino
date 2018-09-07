@@ -52,7 +52,7 @@ float frequency = 868.0;
 #define BAUDRATE 115200
 
 int sent_count = 0;//Client send count, increase after sent data.
-int client_id = 0x03;
+int client_id = 0x01;
 
 // To resetart the network connection if does not receive data from the gw
 int rec_data = 0;
@@ -75,7 +75,7 @@ unsigned long PIRtimestamp = millis();
 
 
 //Select gw
-uint8_t gw=1;
+uint8_t gw=3;
 void setup()
 {
   Wire.begin();
@@ -93,8 +93,7 @@ void setup()
   TH02.begin(5);
   TSL2561.init();
   pinMode(4, INPUT);
-  delay(5000);
-  rf95.printRegisters();
+  
 
 }
 
@@ -336,8 +335,7 @@ void read_sensors(String * message) {
   char sensorvalue[6];
   TH02.PowerOn();
   delay(150);
-  //float tem = TH02.ReadTemperature();
-  float tem = 99.0;
+  float tem = TH02.ReadTemperature(); 
   dtostrf(tem, 4, 2, sensorvalue);
   *message += "/temp," + (String)sensorvalue;
 

@@ -70,7 +70,7 @@ EnergyMonitor em3;
 
 
 //Select gw
-uint8_t gw=3;
+uint8_t gw=6;
 void setup() 
 {
    
@@ -131,7 +131,7 @@ uint16_t recdata( unsigned char* recbuf,int Length)
 }
 void listen_server(void)
 {
-  if (rf95.waitAvailableTimeout(100))
+  if (rf95.waitAvailableTimeout(500))
   {
     Serial.println("Get Message at listen server ");
     rec_data = 1;
@@ -160,7 +160,7 @@ void listen_server(void)
         Serial.println(join[3]);
         int length = sizeof(join);//get data length
         rf95.send(join, sizeof(join));// Send a Join Message
-        if (rf95.waitPacketSent(1000))
+        if (rf95.waitPacketSent(2000))
         {
 
           flag = 1;
@@ -193,7 +193,7 @@ void listen_server(void)
 void polling_detect(void)
 {
   // detect if there is timeout to get response from server.
-  if (rf95.waitAvailableTimeout(500))//check if there is polling request
+  if (rf95.waitAvailableTimeout(3000))//check if there is polling request
   {
     rec_data = 1;
     Serial.println("Get Message at poling detect ");
@@ -254,7 +254,7 @@ void polling_detect(void)
         rf95.send(sendBuf, strlen((char*)sendBuf));//send message
         Serial.print("Data sendingg:");
         Serial.println((char *)sendBuf);
-        if (rf95.waitPacketSent(1000))
+        if (rf95.waitPacketSent(2000))
         {
           detected = 1;
         }
