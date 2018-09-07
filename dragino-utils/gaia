@@ -1,0 +1,3 @@
+/root/.profile
+mosquitto_pub -h $MQTT_HOST -t $MQTT_TOPIC -m $1 -p $MQTT_PORT -u $MQTT_USER -i $MQTT_CLIENT -P $MQTT_PASS
+echo -e "$(date +%s)\t$1" >> /mnt/sda1/logs-$(date +%Y-%m-%d).log
