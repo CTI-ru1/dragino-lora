@@ -63,7 +63,7 @@ long poll_start_time =0;//
 long total_poll_time = 0;//
 int no_response_count = 0;//counter for no response from Client. 
 //Select gw
-int gateway_id = 1;
+int gateway_id = 4;
 int CrcFlag = 0;
 
 
@@ -179,7 +179,7 @@ void set_up_network(void)
                   {                          
                     if(buf[3] == 0)// Error Message
                      {
-                      Serial.println("Error");
+                      Console.println("Error");
                      }
                     else
                      {
@@ -205,7 +205,7 @@ void set_up_network(void)
                          if(clients[pos] == buf[3])
                          {
                             Console.println("client already store");
-                            break ;
+                            break;
                          }
                        }
                        if(pos == sizeof(clients))

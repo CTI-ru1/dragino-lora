@@ -70,7 +70,7 @@ EnergyMonitor em3;
 
 
 //Select gw
-uint8_t gw=6;
+uint8_t gw=4;
 void setup() 
 {
    
@@ -160,7 +160,7 @@ void listen_server(void)
         Serial.println(join[3]);
         int length = sizeof(join);//get data length
         rf95.send(join, sizeof(join));// Send a Join Message
-        if (rf95.waitPacketSent(2000))
+        if (rf95.waitPacketSent())
         {
 
           flag = 1;
@@ -254,7 +254,7 @@ void polling_detect(void)
         rf95.send(sendBuf, strlen((char*)sendBuf));//send message
         Serial.print("Data sendingg:");
         Serial.println((char *)sendBuf);
-        if (rf95.waitPacketSent(2000))
+        if (rf95.waitPacketSent())
         {
           detected = 1;
         }
