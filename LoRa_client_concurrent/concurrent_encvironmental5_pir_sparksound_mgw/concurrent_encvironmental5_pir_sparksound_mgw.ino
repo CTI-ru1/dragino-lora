@@ -31,7 +31,7 @@
 */
 #include <SoftwareSerial.h>
 #include <SPI.h>
-#include <RH_RF95.h>
+#include <RH_RF95_grove.h>
 #include <stdio.h>
 #include <Wire.h>
 #include <Digital_Light_TSL2561.h>
