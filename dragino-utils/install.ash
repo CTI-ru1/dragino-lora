@@ -10,7 +10,7 @@ chmod a+x delete_old_logs.ash
 
 wget https://raw.githubusercontent.com/CTI-ru1/dragino-lora/master/dragino-utils/gaia
 chmod a+x gaia
-mv gaia /usr/bin/gaia 
+mv gaia /usr/bin/gaia
 
 echo "*/5 * * * * /root/check_ssh.ash" > /etc/crontabs/root
 echo "* * * * * /root/delete_old_logs.ash" >> /etc/crontabs/root
