@@ -1,7 +1,8 @@
 #!/bin/ash
+LIMIT="30"
 COUNT=$(/bin/ls -lhr /mnt/sda1 | /usr/bin/wc -l)
-if [ "$COUNT" -gt "30" ]; then
-  logger "Count [$COUNT] over 30"
+if [ "$COUNT" -gt "$LIMIT" ]; then
+  logger "Count [$COUNT] over $LIMIT"
   FILE=$(/bin/ls -hr /mnt/sda1 | /usr/bin/tail -n 1)
   logger "Will delete $FILE"
   rm /mnt/sda1/$FILE

@@ -1,6 +1,34 @@
 #!/bin/ash
 source /root/.profile
-mosquitto_pub -h $MQTT_HOST -t $MQTT_TOPIC -m "$1" -p $MQTT_PORT -u $MQTT_USER -i $MQTT_CLIENT -P $MQTT_PASS
-if grep -sq /mnt/sda1 /proc/mounts; then
+
+msg=$(printf "$1" | \
+    sed -e 's|/t,|/temp,|g' \
+        -e 's|+h,|+humid,|g' \
+        -e 's|+l,|+light,|g' \
+        -e 's|+s,|+sound,|g' \
+        -e 's|+p,|+pir,|g' \
+        -e 's|+v,|+vcc,|g' \
+        -e 's|c/1|cur/1|g' \
+        -e 's|c/2|cur/2|g' \
+        -e 's|c/3|cur/3|g' \
+)
+mosquitto_pub \
+    -h "$MQTT_HOST" \
+    -t "$MQTT_TOPIC" \
+    -p "$MQTT_PORT" \
+    -u "$MQTT_USER" \
+    -i "$MQTT_CLIENT" \
+    -P "$MQTT_PASS" \
+    -m "$msg"
+exit_code="$?"
+if [ "$exit_code" -eq 0 ]
+then
+    exit_code=250
+fi
+
+if grep -qs /mnt/sda1 /proc/mounts; then
     echo -e "$(date +%s)\t$1" >> /mnt/sda1/logs-$(date +%Y-%m-%d).log
 fi
+
+exit "$exit_code"
+
