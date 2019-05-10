@@ -8,6 +8,7 @@ msg=$(printf "$1" | \
         -e 's|+s,|+sound,|g' \
         -e 's|+p,|+pir,|g' \
         -e 's|+v,|+vcc,|g' \
+        -e 's|+r,|+rssin,|g' \
         -e 's|c/1|cur/1|g' \
         -e 's|c/2|cur/2|g' \
         -e 's|c/3|cur/3|g' \
