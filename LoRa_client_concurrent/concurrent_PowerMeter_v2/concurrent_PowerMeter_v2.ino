@@ -53,7 +53,7 @@ RH_RF95 rf95(ss);
 
 //Define the timeout to re-start to listen the broadcast info from server to establish network.
 //Default: 10 minutes 
-#define TIMEOUT 600000
+#define TIMEOUT 300000
 
 //Define the LoRa frequency use for this client
 float frequency = 868.3;
@@ -62,7 +62,7 @@ float frequency = 868.3;
 #define BAUDRATE 115200 
 
 int sent_count = 0;//Client send count, increase after sent data. 
-int client_id = 0x07;
+int client_id = 0x08;
 
 // To resetart the network connection if does not receive data from the gw
 int rec_data = 0;
@@ -262,10 +262,9 @@ void polling_detect(void)
   // detect if there is timeout to get response from server.
   if (rf95.waitAvailableTimeout(3000))//check if there is polling request
   {
-     wdt_reset(); wdt_reset();
-    rec_data = 1;
+     wdt_reset(); 
+    
     Serial.println("Get Message at poling detect ");
-    start = millis( );
     Serial.print("lenght message:");
     Serial.println(RH_RF95_MAX_MESSAGE_LEN);
     uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];//get message
@@ -280,6 +279,8 @@ void polling_detect(void)
 
       if (buf[0] == 'D' && buf[1] == 'R' && buf[2] == gw && buf[3] == client_id ) //check if we receive a data request message
       {
+        start = millis( );
+        rec_data = 1;
         wdt_reset();
         int rssi=rf95.lastRssi();
         wdt_reset();
@@ -334,7 +335,7 @@ void polling_detect(void)
         memset(data, 0, sizeof(data));
         memset(bufst, 0, sizeof(bufst));
         memset(sendBuf, 0, sizeof(sendBuf));
-      //  PIRtimestamp = millis();
+   
 
       }
       else
@@ -368,6 +369,7 @@ void loop()
           wdt_reset();
       }
       Serial.println("Listen the broadcast");
+      start = millis( );
     //detect if there is server broadcast package and join the LoRa Network
       listen_server();
       wdt_reset();   
@@ -380,10 +382,9 @@ void loop()
       wdt_reset();
       if (rec_data==0)
       {
-        total_time += millis( )-start;//get total time out
-        Serial.print("total time");
-        Serial.println(total_time);
-        if(total_time > TIMEOUT)
+         Serial.print("Time:");
+         Serial.println(millis()-start);
+         if (millis()-start > TIMEOUT)
          {
            detected = 0;
            total_time = 0;

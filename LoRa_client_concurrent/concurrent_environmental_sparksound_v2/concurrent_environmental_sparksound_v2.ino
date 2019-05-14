@@ -54,7 +54,7 @@ RH_RF95 rf95(ss);
 
 //Define the timeout to re-start to listen the broadcast info from server to establish network.
 //Default: 10 minutes
-#define TIMEOUT 600000
+#define TIMEOUT 300000
 
 //Define the LoRa frequency use for this client
 float frequency = 868.3;
@@ -63,7 +63,7 @@ float frequency = 868.3;
 #define BAUDRATE 115200
 
 int sent_count = 0;//Client send count, increase after sent data.
-int client_id = 0x02;
+int client_id = 0x01;
 
 // To resetart the network connection if does not receive data from the gw
 int rec_data = 0;
@@ -270,9 +270,9 @@ void polling_detect(void)
   if (rf95.waitAvailableTimeout(3000))//check if there is polling request
   {
     wdt_reset();
-    rec_data = 1;
+   
     Serial.println("Get Message at poling detect ");
-    start = millis( );
+    
     Serial.print("lenght message:");
     Serial.println(RH_RF95_MAX_MESSAGE_LEN);
     uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];//get message
@@ -287,8 +287,9 @@ void polling_detect(void)
 
       if (buf[0] == 'D' && buf[1] == 'R' && buf[2] == gw && buf[3] == client_id ) //check if we receive a data request message
       {
-
-        
+        start = millis( );
+        rec_data = 1;
+   
         int rssi=rf95.lastRssi();
         
         sent_count++;
@@ -375,6 +376,7 @@ void loop()
       wdt_reset();
     }
     Serial.println("Listen the broadcast");
+    start=millis();
     //detect if there is server broadcast package and join the LoRa Network
     listen_server();
     wdt_reset();
@@ -387,9 +389,14 @@ void loop()
     wdt_reset();
     if (rec_data == 0)
     {
-      total_time += millis( ) - start; //get total time out
-
-      if (total_time > TIMEOUT)
+      //total_time += millis( ) - start; //get total time out
+     //  total_time += millis( );
+      //Serial.print("Total time:");
+      //Serial.println(total_time);
+      Serial.print("Time:");
+      Serial.println(millis()-start);
+      if (millis()-start > TIMEOUT)
+      //if (total_time-start > TIMEOUT)
       {
         detected = 0;
         total_time = 0;
@@ -404,6 +411,7 @@ void loop()
       }
 
     }
+    delay(100);
     check_pir();
     Serial.println(PIRValue);
   }
