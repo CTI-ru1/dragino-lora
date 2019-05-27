@@ -35,7 +35,7 @@ RH_RF95 rf95;
 //ENCRYPT  encrypt_decrypt;
 
 //Define the LoRa frequency use for this client
-float frequency = 868.3;
+float frequency = 868.7;
 
 //MAX Clients support, more clients will increase time to establish network and polling
 
@@ -301,9 +301,12 @@ void polling_clients(void)
                     if( buf[0] == 'D' && buf[1] == 'S' && buf[2] == gateway_id && buf[3] == query[3])
                     {
                         //Console.println("DS data received");
-                        char rssi[5];
+                        char rssi[30];
                         wdt_reset();
-                        int n=sprintf(rssi,"%d",rf95.lastRssi());
+                        int n=sprintf(rssi,"rssi,%d+snr,%d+pl,%d+\0",rf95.lastRssi(),rf95.lastSNR(),len);
+                        int snr=rf95.lastSNR();
+                        Console.print("SNR");
+                        Console.println(snr);
                         wdt_reset();
                         //char * mes=buf+5;
                         buf[0]='g';
@@ -311,7 +314,13 @@ void polling_clients(void)
                         buf[2]='i';
                         buf[3]='a';
                         buf[4]=' ';
-                        buf[len-2]='r';
+                        int i=0;
+                        while(i<n)
+                        {
+                          buf[len-2+i]=rssi[i];;
+                          i++;
+                        }
+                        /*buf[len-2]='r';
                         buf[len-1]='s';
                         buf[len]='s';
                         buf[len+1]='i';
@@ -323,7 +332,7 @@ void polling_clients(void)
                           i++;
                         } 
                         buf[len+3+i]='+';
-                        buf[len+4+i]='\0';
+                        buf[len+4+i]='\0';*/
                         wdt_reset();
                         
                         //Increse the message receive correct for each node
