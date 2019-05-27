@@ -9,9 +9,10 @@ msg=$(printf "$1" | \
         -e 's|+p,|+pir,|g' \
         -e 's|+v,|+vcc,|g' \
         -e 's|+r,|+rssin,|g' \
+        -e 's|+n,|+snrn,|g' \
         -e 's|c/1|cur/1|g' \
         -e 's|c/2|cur/2|g' \
-        -e 's|c/3|cur/3|g' \
+        -e 's|c/3|cur/3|g'
 )
 mosquitto_pub \
     -h "$MQTT_HOST" \
@@ -28,7 +29,7 @@ then
 fi
 
 if grep -qs /mnt/sda1 /proc/mounts; then
-    echo -e "$(date +%s)\t$1" >> /mnt/sda1/logs-$(date +%Y-%m-%d).log
+    echo -e "$(date +%s)\t$msg" >> /mnt/sda1/logs-$(date +%Y-%m-%d).log
 fi
 
 exit "$exit_code"
