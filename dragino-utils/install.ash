@@ -1,6 +1,6 @@
 #!/bin/ash
 cd /root/
-rm -rf delete_old_logs.ash check_ssh.ash gaia
+rm -rf delete_old_logs.ash check_ssh.ash gaia report.ash
 
 wget https://raw.githubusercontent.com/CTI-ru1/dragino-lora/master/dragino-utils/check_ssh.ash
 chmod a+x check_ssh.ash
