@@ -1,7 +1,8 @@
 #!/bin/ash
+
 source /root/.profile
 
-msg=$(printf "$1" | \
+msg=$(printf "%s" "$1" | \
     sed -e 's|/t,|/temp,|g' \
         -e 's|+h,|+humid,|g' \
         -e 's|+l,|+light,|g' \
@@ -29,8 +30,9 @@ then
 fi
 
 if grep -qs /mnt/sda1 /proc/mounts; then
-    echo -e "$(date +%s)\t$msg" >> /mnt/sda1/logs-$(date +%Y-%m-%d).log
+    echo -e "$(date +%s)\t$msg" >> /mnt/sda1/logs-"$(date +%Y-%m-%d)".log
 fi
 
 exit "$exit_code"
 
+# kate: replace-tabs on; indent-width 2; mixedindent off; indent-mode cstyle; syntax bash;
