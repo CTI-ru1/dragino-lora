@@ -1,7 +1,8 @@
 #!/bin/ash
+
 source /root/.profile
 
-msg=$(printf "$1" | \
+msg=$(printf "%s" "$1" | \
     sed -e 's|/t,|/temp,|g' \
         -e 's|+h,|+humid,|g' \
         -e 's|+l,|+light,|g' \
@@ -9,9 +10,19 @@ msg=$(printf "$1" | \
         -e 's|+p,|+pir,|g' \
         -e 's|+v,|+vcc,|g' \
         -e 's|+r,|+rssin,|g' \
+        -e 's|+n,|+snrn,|g' \
+        -e 's|/d1,|/PM1,|g' \
+        -e 's|+d2,|+PM25,|g' \
+        -e 's|+d3,|+PM10,|g' \
+        -e 's|+0,|+03u,|g' \
+        -e 's|+1,|+05u,|g' \
+        -e 's|+2,|+10u,|g' \
+        -e 's|+3,|+25u,|g' \
+        -e 's|+4,|+50u,|g' \
+        -e 's|+5,|+100u,|g' \
         -e 's|c/1|cur/1|g' \
         -e 's|c/2|cur/2|g' \
-        -e 's|c/3|cur/3|g' \
+        -e 's|c/3|cur/3|g'
 )
 mosquitto_pub \
     -h "$MQTT_HOST" \
@@ -28,8 +39,9 @@ then
 fi
 
 if grep -qs /mnt/sda1 /proc/mounts; then
-    echo -e "$(date +%s)\t$1" >> /mnt/sda1/logs-$(date +%Y-%m-%d).log
+    echo -e "$(date +%s)\t$msg" >> /mnt/sda1/logs-"$(date +%Y-%m-%d)".log
 fi
 
 exit "$exit_code"
 
+# kate: replace-tabs on; indent-width 2; mixedindent off; indent-mode cstyle; syntax bash;
