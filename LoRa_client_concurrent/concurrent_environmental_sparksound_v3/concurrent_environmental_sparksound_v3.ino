@@ -49,7 +49,11 @@
 #include <TH02_dev.h>
 #include <avr/wdt.h>
 
-SoftwareSerial ss(8, 9);
+//Client ID to change
+int client_id = 0x09;
+
+
+SoftwareSerial ss(9, 8);
 RH_RF95 rf95(ss);
 
 //Define the timeout to re-start to listen the broadcast info from server to establish network.
@@ -57,13 +61,10 @@ RH_RF95 rf95(ss);
 #define TIMEOUT 300000
 
 //Define the LoRa frequency use for this client
-float frequency = 868.3;
+float frequency = 868.0;
 
 // Client ID address in EEPROM.
 #define BAUDRATE 115200
-
-int sent_count = 0;//Client send count, increase after sent data.
-int client_id = 0x01;
 
 // To resetart the network connection if does not receive data from the gw
 int rec_data = 0;
@@ -76,8 +77,11 @@ int flag = 0; //
 long start = 0;
 long total_time = 0;//check how long doesn't receive a server message
 unsigned long Soundtimestamp = millis();
-int maximum = 0;
+//int maximum = 0;
 
+
+//SOUNd
+float maximum=0.0;
 
 //PIR
 int PIRStatus = 0;
@@ -86,7 +90,7 @@ unsigned long PIRtimestamp = millis();
 
 
 //Select gw
-uint8_t gw = 2;
+uint8_t gw = 1;
 
 
 char bufst[60] = {0};
@@ -127,6 +131,7 @@ long readVcc() {
 
 void setup()
 {
+  delay(10000);
   //Enable the watchdog
   wdt_enable(WDTO_8S);
   Wire.begin();
@@ -292,7 +297,7 @@ void polling_detect(void)
    
         int rssi=rf95.lastRssi();
         
-        sent_count++;
+       // sent_count++;
         char  data[60] = {0};//data to be sent
         char  values[65] = {0};//data to be sent
         data[0] =  'D';
@@ -340,10 +345,11 @@ void polling_detect(void)
         wdt_reset();
         total_time = 0;
         //clean memory
-        memset(data, 0, sizeof(bufst));
+        memset(data, 0, sizeof(data));
+        memset(bufst, 0, sizeof(bufst));
         memset(sendBuf, 0, sizeof(sendBuf));
         PIRtimestamp = millis();
-
+       // delay(1000);
       }
       else
       {
@@ -412,6 +418,7 @@ void loop()
 
     }
     delay(100);
+   // delay(1000);
     check_pir();
     Serial.println(PIRValue);
   }
@@ -437,20 +444,36 @@ void read_sensors(int id,int rssi) {
    int snr = rf95.lastSNR();
   sprintf(bufst,"%d/t,%d.%02d+h,%d.%02d+l,%ld+s,%d+p,%d+v,%lu+r,%d+n,%d+",id,(int)tem,(int)(tem*100)%100,(int)hum,(int)(hum*100)%100,light,sound,PIRValue,vcc,rssi,snr);
   PIRValue = 0;
+  maximum=0;
   wdt_reset();
 }
 int check_sound()
 {
-
-  float value = (float)analogRead(A2);
+  float value;
+  /*float maximum=0;
+  int i=0;
+  for(i=0;i<500;i++)
+  {
+    value = (float)analogRead(A2);
+    if (maximum<value)
+    {
+      maximum=value;
+    }
+  }*/
+  value = (float)analogRead(A2);
+  if (maximum<value)
+  {
+      maximum=value;
+   }
   Serial.print("Value:");
   Serial.println(value);
   float newStatus = 0.0;
-  newStatus = 0.12 * value + 44.0;
+  newStatus=maximum+40;
+  /*newStatus = 0.12 * value + 44.0;
   if (newStatus <= 0)
   {
     newStatus = 32.00;
-  }
+  }*/
 
   Serial.print("Sound:");
   Serial.println(newStatus );
@@ -458,7 +481,7 @@ int check_sound()
 }
 int check_pir()
 {
-  if (millis() - PIRtimestamp > 50)
+  if (millis() - PIRtimestamp > 3000)
   {
     //digitalRead(4); // read the value from the sensor
     int PIRnewStatus = digitalRead(4); // read the value from the sensor
