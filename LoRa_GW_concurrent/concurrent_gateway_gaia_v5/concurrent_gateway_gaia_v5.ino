@@ -11,7 +11,7 @@ ssh
     when the join request message arrive to gateway, the gateway will send back a join-ack message with client id and add this client to the LoRa Network. 
    If the client gets its join-ack message for its join request, it will enter the mode to listen the data-request message from gateway. In this mode, 
     if client get a data-request message for this client it will send back a data message to the gateway. 
-   After client in data_request listening mode, if it has not receive any message from gateway in a timeout, it will go back to the network set up mode to listen the broadcast message. 
+   After client in data_request li.1stening mode, if it has not receive any message from gateway in a timeout, it will go back to the network set up mode to listen the broadcast message. 
    Gateway will refresh the LoRa network periodically for adding new client or remove unreachable client. 
   This example using the polling method between LoRa node and Gateway, it will minimize the LoRa packets transfer on the air and avoid congestion. It is suitable for a not real time LoRa work. 
 
@@ -57,8 +57,8 @@ float frequency = 869.5;
 #define ID_ADDRESS 0x00
 
 //Polling periode
-#define POLL_PERIODE 10
-#define POLL_NODE_PERIODE 10
+#define POLL_PERIODE 0
+#define POLL_NODE_PERIODE 0
 
 
 //String sensor_data = "";
@@ -68,10 +68,11 @@ int broadcast_retry = 0 ;//counter for broadcast message on no response.
 int network_setup_finish = 0 ;//flag to indicate network set up is finished. 
 int b = 0;// network set up count. 
 long poll_start_time =0;//
+long delay_start_time =0;//
 long total_poll_time = 0;//
 int no_response_count = 0;//counter for no response from Client. 
 //Select gw
-int gateway_id = 1;
+int gateway_id = 4;
 int CrcFlag = 0;
 
 //Use dragino hostname 
@@ -254,7 +255,7 @@ void polling_clients(void)
     for(polling_count = 0; polling_count < client_numbers; polling_count++)//send data requst to every client one by one
     {
       wdt_reset(); 
-      delay(POLL_NODE_PERIODE);
+     // delay(POLL_NODE_PERIODE);
       uint8_t query[4] = {0}; //Data Request Message
       if (clients[polling_count]==0)
       {
@@ -397,13 +398,24 @@ void loop()
       else
       {
         ncyl++; //Incress number of cycles
+       
         polling_clients();// request data from clients
 
         Console.print("Client number:");
         Console.println(client_numbers);
       }
-      //Polling periode
-      delay(POLL_PERIODE);
+  
+       //Polling periode
+       /* delay_start_time = millis( );
+         Console.println(delay_start_time);
+        while((delay_start_time+POLL_PERIODE)>millis())
+        {
+          delay(10);
+          Console.print("Value:");
+          Console.println(delay_start_time+POLL_PERIODE);
+          wdt_reset();
+            
+        }*/
         
      if(millis() - poll_start_time > REFRESH_TIME)//refresh the network 
      {
@@ -428,7 +440,7 @@ void loop()
            Console.println();
          
            sendMQTT(buf);
-           delay(10);
+         //  delay(10);
        }
        ncyl=0;
        memset(nmal,0,sizeof(nret));

@@ -56,13 +56,13 @@ RH_RF95 rf95(ss);
 #define TIMEOUT 300000
 
 //Define the LoRa frequency use for this client
-float frequency = 868.7;
+float frequency = 868.3;
 
 
 #define BAUDRATE 115200 
 
 int sent_count = 0;//Client send count, increase after sent data. 
-int client_id = 0x08;
+int client_id = 0x07;
 
 // To resetart the network connection if does not receive data from the gw
 int rec_data = 0;
@@ -83,7 +83,7 @@ EnergyMonitor em3;
 
 
 //Select gw
-uint8_t gw=2;
+uint8_t gw=5;
 
 char bufst[60] = {0};
 //Read Vccc
@@ -264,8 +264,8 @@ void polling_detect(void)
   {
      wdt_reset(); 
     
-    Serial.println("Get Message at poling detect ");
-    Serial.print("lenght message:");
+    //Serial.println("Get Message at poling detect ");
+   // Serial.print("lenght message:");
     Serial.println(RH_RF95_MAX_MESSAGE_LEN);
     uint8_t buf[RH_RF95_MAX_MESSAGE_LEN];//get message
     uint8_t len = sizeof(buf);//get message length
@@ -400,7 +400,7 @@ void loop()
       }
       
    }
-   delay(100);
+   //delay(100);
 }
 void read_current(int id,int rssi)
 {
