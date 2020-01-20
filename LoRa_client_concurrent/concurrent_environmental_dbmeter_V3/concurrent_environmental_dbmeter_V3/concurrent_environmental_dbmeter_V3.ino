@@ -50,7 +50,7 @@
 #include <avr/wdt.h>
 
 //Client ID to change
-int client_id = 0x05;
+int client_id = 0x04;
 
 
 SoftwareSerial ss(9, 8);
@@ -442,7 +442,8 @@ void read_sensors(int id,int rssi) {
   int sound = check_sound();
   long vcc=readVcc();
    int snr = rf95.lastSNR();
-  sprintf(bufst,"%d/t,%d.%02d+h,%d.%02d+l,%ld+s,%d+p,%d+v,%lu+r,%d+n,%d+",id,(int)tem,(int)(tem*100)%100,(int)hum,(int)(hum*100)%100,light,sound,PIRValue,vcc,rssi,snr);
+  sprintf(bufst,"%d/t,%d.%02d+h,%d.%02d+l,%ld+s,%d+p,%d+v,%lu+",id,(int)tem,(int)(tem*100)%100,(int)hum,(int)(hum*100)%100,light,sound,PIRValue,vcc);
+  //sprintf(bufst,"%d/t,%d.%02d+h,%d.%02d+l,%ld+s,%d+p,%d+v,%lu+r,%d+n,%d+",id,(int)tem,(int)(tem*100)%100,(int)hum,(int)(hum*100)%100,light,sound,PIRValue,vcc,rssi,snr);
   PIRValue = 0;
   maximum=0;
   wdt_reset();
