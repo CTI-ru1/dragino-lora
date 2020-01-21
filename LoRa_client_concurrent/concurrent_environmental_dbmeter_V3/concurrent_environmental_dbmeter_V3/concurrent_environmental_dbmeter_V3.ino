@@ -298,8 +298,8 @@ void polling_detect(void)
         int rssi=rf95.lastRssi();
         
        // sent_count++;
-        char  data[60] = {0};//data to be sent
-        char  values[65] = {0};//data to be sent
+        char  data[70] = {0};//data to be sent
+        char  values[75] = {0};//data to be sent
         data[0] =  'D';
         data[1] =  'S';
         data[2] = gw;
@@ -319,13 +319,13 @@ void polling_detect(void)
 
         uint16_t crcData = CRC16((unsigned char*)data, dataLength); //calculate CRC
         wdt_reset();
-        unsigned char sendBuf[60] = {0};
+        unsigned char sendBuf[70] = {0};
         strcpy((char*)sendBuf, data); //copy data to sendbuf
 
         sendBuf[dataLength] = (unsigned char)crcData;
 
         sendBuf[dataLength + 1] = (unsigned char)(crcData >> 8);
-
+       
         int length = strlen((char*)sendBuf);//get data length
         //Serial.print("Sending data:");
        /* for (int i = 0; i < 50; i++)
@@ -335,7 +335,7 @@ void polling_detect(void)
         Serial.println("");*/
         rf95.send(sendBuf, strlen((char*)sendBuf));//send message
         wdt_reset();
-       Serial.print("Data sendingg:");
+         Serial.print("Data sendingg:");
         Serial.println((char *)sendBuf);
         if (rf95.waitPacketSent())
         {
@@ -442,8 +442,8 @@ void read_sensors(int id,int rssi) {
   int sound = check_sound();
   long vcc=readVcc();
    int snr = rf95.lastSNR();
-  sprintf(bufst,"%d/t,%d.%02d+h,%d.%02d+l,%ld+s,%d+p,%d+v,%lu+",id,(int)tem,(int)(tem*100)%100,(int)hum,(int)(hum*100)%100,light,sound,PIRValue,vcc);
-  //sprintf(bufst,"%d/t,%d.%02d+h,%d.%02d+l,%ld+s,%d+p,%d+v,%lu+r,%d+n,%d+",id,(int)tem,(int)(tem*100)%100,(int)hum,(int)(hum*100)%100,light,sound,PIRValue,vcc,rssi,snr);
+  //sprintf(bufst,"%d/t,%d.%02d+h,%d.%02d+l,%ld+s,%d+p,%d+v,%lu+",id,(int)tem,(int)(tem*100)%100,(int)hum,(int)(hum*100)%100,light,sound,PIRValue,vcc);
+  sprintf(bufst,"%d/t,%d.%02d+h,%d.%02d+l,%ld+s,%d+p,%d+v,%lu+r,%d+n,%d+",id,(int)tem,(int)(tem*100)%100,(int)hum,(int)(hum*100)%100,light,sound,PIRValue,vcc,rssi,snr);
   PIRValue = 0;
   maximum=0;
   wdt_reset();

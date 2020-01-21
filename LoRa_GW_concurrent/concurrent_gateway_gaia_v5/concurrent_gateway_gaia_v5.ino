@@ -35,7 +35,7 @@ RH_RF95 rf95;
 //ENCRYPT  encrypt_decrypt;
 
 //Define the LoRa frequency use for this client
-float frequency = 869.5;
+float frequency = 868.3;
 
 //MAX Clients support, more clients will increase time to establish network and polling
 
@@ -72,7 +72,7 @@ long delay_start_time =0;//
 long total_poll_time = 0;//
 int no_response_count = 0;//counter for no response from Client. 
 //Select gw
-int gateway_id = 4;
+int gateway_id = 5;
 int CrcFlag = 0;
 
 //Use dragino hostname 
@@ -280,7 +280,7 @@ void polling_clients(void)
           wdt_reset(); 
           rf95.waitPacketSent();     
           wdt_reset();               
-          if (rf95.waitAvailableTimeout(1000))//
+          if (rf95.waitAvailableTimeout(2000))//
           {    
              wdt_reset();      
              Console.println("Get incoming message ");
