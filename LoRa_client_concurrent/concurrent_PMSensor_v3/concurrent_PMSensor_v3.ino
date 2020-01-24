@@ -50,7 +50,7 @@ RH_RF95 rf95(ss);
 #define TIMEOUT 300000
 
 //Define the LoRa frequency use for this client
-float frequency = 869.5;
+float frequency = 868.3;
 
 // Client ID address in EEPROM.
 #define BAUDRATE 115200
@@ -79,7 +79,7 @@ u16 value_PM[7];
 long timestart = 0;
 
 //Select gw
-uint8_t gw = 4;
+uint8_t gw = 5;
 
 
 char bufst[60] = {0};
@@ -288,8 +288,8 @@ void polling_detect(void)
         int rssi=rf95.lastRssi();
         
        // sent_count++;
-        char  data[60] = {0};//data to be sent
-        char  values[50] = {0};//data to be sent
+        char  data[70] = {0};//data to be sent
+        char  values[75] = {0};//data to be sent
         data[0] =  'D';
         data[1] =  'S';
         data[2] = gw;
@@ -311,7 +311,7 @@ void polling_detect(void)
 
         uint16_t crcData = CRC16((unsigned char*)data, dataLength); //calculate CRC
         wdt_reset();
-        unsigned char sendBuf[60] = {0};
+        unsigned char sendBuf[70] = {0};
         strcpy((char*)sendBuf, data); //copy data to sendbuf
 
         sendBuf[dataLength] = (unsigned char)crcData;
@@ -435,8 +435,8 @@ void read_sensors(int id,int rssi) {
   long vcc=readVcc();
    int snr = rf95.lastSNR();
 
-  sprintf(bufst,"%d/pm1,%u+pm25,%u+pm10,%u+",id,value_PM[5],value_PM[6],value_PM[7]);
-  //sprintf(bufst,"%d/pm1,%u+pm25,%u+pm10,%u+v,%lu+r,%d+n,%d+",id,value_PM[5],value_PM[6],value_PM[7],vcc,rssi,snr);
+  //sprintf(bufst,"%d/pm1,%u+pm25,%u+pm10,%u+",id,value_PM[5],value_PM[6],value_PM[7]);
+  sprintf(bufst,"%d/pm1,%u+pm25,%u+pm10,%u+v,%lu+r,%d+n,%d+",id,value_PM[5],value_PM[6],value_PM[7],vcc,rssi,snr);
   //sprintf(bufst,"%d/d1,%u+d2,%u+d3,%u+v,%lu+r,%d+n,%d+",id,value_PM[5],value_PM[6],value_PM[7],vcc,rssi,snr);
   wdt_reset();
 
