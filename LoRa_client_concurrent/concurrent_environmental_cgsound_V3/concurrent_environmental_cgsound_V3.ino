@@ -57,13 +57,13 @@ RH_RF95 rf95(ss);
 #define TIMEOUT 300000
 
 //Define the LoRa frequency use for this client
-float frequency = 868.7;
+float frequency = 868.1;
 
 // Client ID address in EEPROM.
 #define BAUDRATE 115200
 
 int sent_count = 0;//Client send count, increase after sent data.
-int client_id = 0x01;
+int client_id = 0x04;
 
 // To resetart the network connection if does not receive data from the gw
 int rec_data = 0;
@@ -88,10 +88,10 @@ unsigned long PIRtimestamp = millis();
 int sound = 0;
 
 //Select gw
-uint8_t gw = 2;
+uint8_t gw = 1;
 
 
-char bufst[60] = {0};
+char bufst[70] = {0};
 //Read Vccc
 long readVcc() {
   long result;
@@ -295,8 +295,8 @@ void polling_detect(void)
         int rssi = rf95.lastRssi();
 
         sent_count++;
-        char  data[60] = {0};//data to be sent
-        char  values[65] = {0};//data to be sent
+        char  data[70] = {0};//data to be sent
+        char  values[75] = {0};//data to be sent
         data[0] =  'D';
         data[1] =  'S';
         data[2] = gw;
@@ -316,7 +316,7 @@ void polling_detect(void)
 
         uint16_t crcData = CRC16((unsigned char*)data, dataLength); //calculate CRC
         wdt_reset();
-        unsigned char sendBuf[60] = {0};
+        unsigned char sendBuf[70] = {0};
         strcpy((char*)sendBuf, data); //copy data to sendbuf
 
         sendBuf[dataLength] = (unsigned char)crcData;
@@ -414,7 +414,7 @@ void loop()
       }
 
     }
-    delay(100);
+    //delay(100);
     check_pir();
     Serial.print("PIR:");
     Serial.println(PIRValue);
@@ -432,9 +432,11 @@ void read_sensors(int id, int rssi) {
   float tem = TH02.ReadTemperature();
   float hum = TH02.ReadHumidity();
   TH02.PowerOff();
+
   delay(50);
   wdt_reset();
   signed long light = TSL2561.readVisibleLux();
+  //signed long light = 1000;
   delay(50);
   int s = check_sound();
   long vcc = readVcc();
@@ -482,7 +484,7 @@ int check_sound()
 }
 int check_pir()
 {
-  if (millis() - PIRtimestamp > 50)
+  if (millis() - PIRtimestamp > 3000)
   {
    // digitalRead(4); // read the value from the sensor
     int PIRnewStatus = digitalRead(4); // read the value from the sensor
@@ -503,4 +505,3 @@ int check_pir()
   }
 
 }
-
