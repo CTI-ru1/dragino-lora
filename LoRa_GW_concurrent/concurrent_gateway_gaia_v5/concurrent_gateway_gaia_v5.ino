@@ -35,7 +35,7 @@ RH_RF95 rf95;
 //ENCRYPT  encrypt_decrypt;
 
 //Define the LoRa frequency use for this client
-float frequency = 868.3;
+float frequency = 869.5;
 
 //MAX Clients support, more clients will increase time to establish network and polling
 
@@ -60,6 +60,8 @@ float frequency = 868.3;
 #define POLL_PERIODE 0
 #define POLL_NODE_PERIODE 0
 
+#define MAX_BUFFER 90
+
 
 //String sensor_data = "";
 char clients[MAX_CLIENT] = {0}; //store the clients's ID 
@@ -72,12 +74,12 @@ long delay_start_time =0;//
 long total_poll_time = 0;//
 int no_response_count = 0;//counter for no response from Client. 
 //Select gw
-int gateway_id = 5;
+int gateway_id = 1;
 int CrcFlag = 0;
 
 //Use dragino hostname 
 //String hostname;
-uint8_t buf[80] = {0};//
+uint8_t buf[MAX_BUFFER] = {0};//
 
 
 //Network status variables
@@ -255,7 +257,7 @@ void polling_clients(void)
     for(polling_count = 0; polling_count < client_numbers; polling_count++)//send data requst to every client one by one
     {
       wdt_reset(); 
-     // delay(POLL_NODE_PERIODE);
+      // delay(POLL_NODE_PERIODE);
       uint8_t query[4] = {0}; //Data Request Message
       if (clients[polling_count]==0)
       {
@@ -316,7 +318,7 @@ void polling_clients(void)
                         buf[3]='a';
                         buf[4]=' ';
                         int i=0;
-                        while(i<n)
+                        while((i<n) &&  (len-2+i < MAX_BUFFER))
                         {
                           buf[len-2+i]=rssi[i];;
                           i++;
