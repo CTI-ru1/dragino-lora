@@ -139,7 +139,8 @@ void setup()
 uint16_t calcByte(uint16_t crc, uint8_t b)
 {
     uint32_t i = 0;
-    crc        = crc ^ (uint32_t)b << 8;
+
+    crc = crc ^ (uint32_t)b << 8;
 
     for (i = 0; i < 8; i++) {
         if ((crc & 0x8000) == 0x8000)
@@ -154,6 +155,7 @@ uint16_t CRC16(uint8_t* pBuffer, uint32_t length)
 {
     uint16_t wCRC16 = 0;
     uint32_t i      = 0;
+
     if ((pBuffer == 0) || (length == 0)) {
         return 0;
     }
@@ -166,10 +168,12 @@ uint16_t recdata(unsigned char* recbuf, int Length)
 {
     uint16_t crcdata    = 0;
     uint16_t recCRCData = 0;
-    crcdata             = CRC16(recbuf, Length - 2);  // Calculate the CRC for the received message
-    recCRCData          = recbuf[Length - 1];         // get the CRC high byte
-    recCRCData          = recCRCData << 8;            // get the CRC low byte
-    recCRCData |= recbuf[Length - 2];                 // get the receive CRC
+
+    crcdata    = CRC16(recbuf, Length - 2);  // Calculate the CRC for the received message
+    recCRCData = recbuf[Length - 1];         // get the CRC high byte
+    recCRCData = recCRCData << 8;            // get the CRC low byte
+    recCRCData |= recbuf[Length - 2];        // get the receive CRC
+
     if (crcdata == recCRCData) {
         CrcFlag    = 1;
         crcdata    = 0;
@@ -185,45 +189,49 @@ uint16_t recdata(unsigned char* recbuf, int Length)
 void set_up_network(void)
 {
     uint8_t broadcast[4] = {0};  // Broadcast Message
-    broadcast[0]         = 'B';
-    broadcast[1]         = 'C';
-    broadcast[2]         = gateway_id;
-    broadcast[3]         = ':';
-    int length           = sizeof(broadcast);  // get broadcast message length
 
-    for (b = 0; b < 200; b++)  // loop to set up network
-    {
+    broadcast[0] = 'B';
+    broadcast[1] = 'C';
+    broadcast[2] = gateway_id;
+    broadcast[3] = ':';
+
+    int length = sizeof(broadcast);  // get broadcast message length
+
+    // loop to set up network
+    for (b = 0; b < 200; b++) {
         Console.println(F("Sending broadcast message"));
         wdt_reset();
         rf95.send(broadcast, sizeof(broadcast));
         wdt_reset();
         rf95.waitPacketSent();
         wdt_reset();
-        if (rf95.waitAvailableTimeout(500))  // Check the incoming message
-        {
+        // Check the incoming message
+        if (rf95.waitAvailableTimeout(500)) {
             wdt_reset();
             Console.println(F("Getting an incoming message"));
-            buf[0]      = '\0';
-            uint8_t len = sizeof(buf);  //
-            if (rf95.recv(buf, &len))   //
-            {
+            buf[0] = '\0';
+
+            uint8_t len = sizeof(buf);
+            if (rf95.recv(buf, &len)) {
                 wdt_reset();
-                if (buf[0] == 'J' && buf[1] == 'R' &&
-                    buf[2] == gateway_id)  // Get a Join request, Store the Client ID
-                {
-                    if (buf[3] == 0)  // Error Message
-                    {
+                // Get a Join request, Store the Client ID
+                if (buf[0] == 'J' && buf[1] == 'R' && buf[2] == gateway_id) {
+                    // Error Message
+                    if (buf[3] == 0) {
                         Console.println(F("Error"));
                     } else {
-                        for (int b = 0; b < 5; b++)  // Send 5 Join ACK to the Client,make sure it
-                                                     // arrive.   MAX_BROADCAST_RETRY)
-                        {
+                        // Send 5 Join ACK to the Client, make sure it
+                        // arrive.   MAX_BROADCAST_RETRY)
+                        for (int b = 0; b < 5; b++) {
                             uint8_t JoinAck[4] = {0};  // Join ACK message
-                            JoinAck[0]         = 'J';
-                            JoinAck[1]         = 'A';  // client id to be polled
-                            JoinAck[2]         = gateway_id;
-                            JoinAck[3]         = buf[3];           // Put Client ID
-                            int length         = sizeof(JoinAck);  // Get Data Length
+
+                            JoinAck[0] = 'J';
+                            JoinAck[1] = 'A';  // client id to be polled
+                            JoinAck[2] = gateway_id;
+                            JoinAck[3] = buf[3];  // Put Client ID
+
+                            int length = sizeof(JoinAck);  // Get Data Length
+
                             Console.print(F("Sent Join ACK to client: "));
                             Console.println(buf[3]);
                             wdt_reset();
@@ -235,9 +243,8 @@ void set_up_network(void)
                             delay(500);
                         }
                         int pos;
-                        for (pos = 0; pos < sizeof(clients);
-                             pos++)  // check if this client already stored
-                        {
+                        // check if this client already stored
+                        for (pos = 0; pos < sizeof(clients); pos++) {
                             if (clients[pos] == buf[3]) {
                                 Console.println(F("Client already stored"));
                                 break;
@@ -258,9 +265,9 @@ void set_up_network(void)
             }
         } else {
             broadcast_retry++;
-            if (broadcast_retry > MAX_BROADCAST_RETRY)  // check if retry count exceed the max
-                                                        // retry, if yes, network set up finish.
-            {
+            // check if retry count exceed the max
+            // retry, if yes, network set up finish.
+            if (broadcast_retry > MAX_BROADCAST_RETRY) {
                 network_setup_finish = 1;
                 broadcast_retry      = 0;
                 break;
@@ -275,9 +282,8 @@ void polling_clients(void)
 {
     int polling_count = 0;
 
-    for (polling_count = 0; polling_count < client_numbers;
-         polling_count++)  // send data requst to every client one by one
-    {
+    // send data requst to every client one by one
+    for (polling_count = 0; polling_count < client_numbers; polling_count++) {
         wdt_reset();
         // delay(POLL_NODE_PERIODE);
         uint8_t query[4] = {0};  // Data Request Message
@@ -286,14 +292,15 @@ void polling_clients(void)
             break;
         }
         query[3] = clients[polling_count];
-        for (int poll_cnt = 0; poll_cnt < MAX_REMOVE_RETRY;
-             poll_cnt++)  // Send a data requst message
-        {
+        // Send a data requst message
+        for (int poll_cnt = 0; poll_cnt < MAX_REMOVE_RETRY; poll_cnt++) {
             uint8_t query[4] = {0};  // Data Request Message
-            query[0]         = 'D';
-            query[1]         = 'R';
-            query[2]         = gateway_id;
-            query[3]         = clients[polling_count];  // client id to be polled
+
+            query[0] = 'D';
+            query[1] = 'R';
+            query[2] = gateway_id;
+            query[3] = clients[polling_count];  // client id to be polled
+
             Console.print(F("Request Data from client: "));
             Console.println(query[3]);
 
@@ -303,8 +310,7 @@ void polling_clients(void)
             wdt_reset();
             rf95.waitPacketSent();
             wdt_reset();
-            if (rf95.waitAvailableTimeout(2000))  //
-            {
+            if (rf95.waitAvailableTimeout(2000)) {
                 wdt_reset();
                 Console.println(F("Get incoming message"));
                 memset(buf, 0, sizeof(buf));
@@ -317,8 +323,8 @@ void polling_clients(void)
                     no_response_count = 0;
                     recdata(buf, len);  // crc calcualte
 
-                    if (CrcFlag == 1)  // Calculate Successful, match
-                    {
+                    // Calculate Successful, match
+                    if (CrcFlag == 1) {
                         // Console.println("CRC calculated correctly");
                         CrcFlag = 0;
                         if (buf[0] == 'D' && buf[1] == 'S' && buf[2] == gateway_id &&
@@ -346,22 +352,23 @@ void polling_clients(void)
                             int i  = 0;
                             while ((i < n) && (len - 2 + i < MAX_BUFFER)) {
                                 buf[len - 2 + i] = rssi[i];
-                                ;
                                 i++;
                             }
-                            /*buf[len-2]='r';
-                        buf[len-1]='s';
-                        buf[len]='s';
-                        buf[len+1]='i';
-                        buf[len+2]=',';
-                        int i=0;
-                        while(i<n)
-                        {
-                          buf[len+3+i]=rssi[i];
-                          i++;
-                        }
-                        buf[len+3+i]='+';
-                        buf[len+4+i]='\0';*/
+                            /*
+                            buf[len-2] = 'r';
+                            buf[len-1] = 's';
+                            buf[len]   = 's';
+                            buf[len+1] = 'i';
+                            buf[len+2] = ',';
+
+                            int i = 0;
+                            while(i < n) {
+                                buf[len+3+i] = rssi[i];
+                                i++;
+                            }
+                            buf[len+3+i] = '+';
+                            buf[len+4+i] = '\0';
+                            */
                             wdt_reset();
 
                             // Increse the message receive correct for each node
@@ -390,9 +397,8 @@ void polling_clients(void)
             } else {
                 nret[polling_count]++;
                 no_response_count++;
-                if (no_response_count ==
-                    MAX_REMOVE_RETRY)  // no response from client, remove it after max retry
-                {
+                // no response from client, remove it after max retry
+                if (no_response_count == MAX_REMOVE_RETRY) {
                     no_response_count = 0;
 
                     Console.print(F("Client not responding ID: "));
@@ -426,19 +432,19 @@ void loop()
     }
 
     // Polling periode
-    /* delay_start_time = millis( );
-         Console.println(delay_start_time);
-        while((delay_start_time+POLL_PERIODE)>millis())
-        {
-          delay(10);
-          Console.print("Value:");
-          Console.println(delay_start_time+POLL_PERIODE);
-          wdt_reset();
+    /*
+    delay_start_time = millis();
+    Console.println(delay_start_time);
+    while((delay_start_time+POLL_PERIODE)>millis()) {
+        delay(10);
+        Console.print("Value:");
+        Console.println(delay_start_time+POLL_PERIODE);
+        wdt_reset();
+    }
+    */
 
-        }*/
-
-    if (millis() - poll_start_time > REFRESH_TIME)  // refresh the network
-    {
+    // refresh the network
+    if (millis() - poll_start_time > REFRESH_TIME) {
         Console.println(F("Refresh network after timeout"));
         network_setup_finish = 0;
         total_poll_time      = 0;
@@ -469,8 +475,8 @@ void loop()
         ncyl = 0;
         memset(nmal, 0, sizeof(nret));
         memset(nret, 0, sizeof(nret));
-        memset(msm, 0, sizeof(msm));
-        memset(pub, 0, sizeof(pub));
+        memset(msm,  0, sizeof(msm ));
+        memset(pub,  0, sizeof(pub ));
         memset(ncrc, 0, sizeof(ncrc));
     }
 }
