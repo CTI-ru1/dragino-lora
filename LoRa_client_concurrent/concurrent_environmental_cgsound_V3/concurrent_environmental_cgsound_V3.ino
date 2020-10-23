@@ -57,7 +57,7 @@ RH_RF95 rf95(ss);
 #define TIMEOUT 300000
 
 //Define the LoRa frequency use for this client
-float frequency = 868.1;
+float frequency = 869.5;
 
 // Client ID address in EEPROM.
 #define BAUDRATE 115200

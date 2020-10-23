@@ -49,7 +49,7 @@
 #include <TH02_dev.h>
 #include <avr/wdt.h>
 
-SoftwareSerial ss(8, 9);
+SoftwareSerial ss(9, 8);
 RH_RF95 rf95(ss);
 
 //Define the timeout to re-start to listen the broadcast info from server to establish network.
@@ -57,13 +57,13 @@ RH_RF95 rf95(ss);
 #define TIMEOUT 300000
 
 //Define the LoRa frequency use for this client
-float frequency = 868.3;
+float frequency = 868.7;
 
 // Client ID address in EEPROM.
 #define BAUDRATE 115200
 
 int sent_count = 0;//Client send count, increase after sent data.
-int client_id = 0x01;
+int client_id = 0x06;
 
 // To resetart the network connection if does not receive data from the gw
 int rec_data = 0;
@@ -476,4 +476,3 @@ int check_pir()
   }
 
 }
-

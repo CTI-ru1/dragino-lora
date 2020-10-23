@@ -56,13 +56,13 @@ RH_RF95 rf95(ss);
 #define TIMEOUT 300000
 
 //Define the LoRa frequency use for this client
-float frequency = 868.3;
+float frequency = 869.5;
 
 
 #define BAUDRATE 115200 
 
 int sent_count = 0;//Client send count, increase after sent data. 
-int client_id = 0x07;
+int client_id = 0x08;
 
 // To resetart the network connection if does not receive data from the gw
 int rec_data = 0;
@@ -83,7 +83,7 @@ EnergyMonitor em3;
 
 
 //Select gw
-uint8_t gw=5;
+uint8_t gw=1;
 
 char bufst[60] = {0};
 //Read Vccc
@@ -406,7 +406,7 @@ void read_current(int id,int rssi)
 {
     float value1 = (float)em1.calcIrms(1480); 
     value1=value1*1000;
-    if (value1<100)
+    if (value1<80)
     {
       value1=0.00;
     }
@@ -414,14 +414,14 @@ void read_current(int id,int rssi)
     float value2 = (float)em2.calcIrms(1480);  
     value2=value2*1000;
     
-    if (value2<100)
+    if (value2<80)
     {
       value2=0.00;
     }
     //value2=10000.00;
     float value3 = (float)em3.calcIrms(1480);  
     value3=value3*1000;
-    if (value3<100)
+    if (value3<80)
     {
       value3=0.00;
     }

@@ -50,7 +50,7 @@
 #include <avr/wdt.h>
 
 //Client ID to change
-int client_id = 0x04;
+int client_id = 0x05;
 
 
 SoftwareSerial ss(9, 8);
@@ -61,7 +61,7 @@ RH_RF95 rf95(ss);
 #define TIMEOUT 300000
 
 //Define the LoRa frequency use for this client
-float frequency = 869.5;
+float frequency = 868.0;
 
 // Client ID address in EEPROM.
 #define BAUDRATE 115200
@@ -90,10 +90,56 @@ unsigned long PIRtimestamp = millis();
 
 
 //Select gw
-uint8_t gw = 4;
+uint8_t gw = 3;
 
+// Turn on (true) or off (false) the Tx and Rx led.
+// ------------------------------------------------
+// They are turned off by making them input.
+// That prevents that any RX or TX activity will turn them on.
+// However, when the leds are on, any RX or TX action will
+// make them blink or turn them off.
 
-char bufst[60] = {0};
+/*void ledTx( boolean on)
+{
+  if( on)
+  {
+    // led on. The led is connected to VCC. Make pin low to turn led on.
+    pinMode( LED_BUILTIN_TX, OUTPUT);    // pin as output.
+    digitalWrite( LED_BUILTIN_TX, LOW);  // pin low
+
+    // These two lines will do the same:
+    //    bitSet( DDRD, 5);         
+    //    bitClear( PORTD, 5);       
+  }
+  else
+  {
+    // led off
+    // turn it off, by setting it as input, so the serial activity can't turn it on.
+    // If the internal pullup resistor is enabled or not, that does not matter,
+    // since the led it connected to VCC.
+    pinMode( LED_BUILTIN_TX, INPUT);
+
+    // This line will do the same:
+    //    bitClear( DDRD, 5);        // set pin as input
+  }
+}*/
+/*
+void ledRx( boolean on)
+{
+  if( on)
+  {
+    pinMode( LED_BUILTIN_RX, OUTPUT);
+    digitalWrite( LED_BUILTIN_RX, LOW);
+    //    bitSet( DDRB, 0);
+    //    bitClear( PORTB, 0);
+  }
+  else
+  {
+    pinMode( LED_BUILTIN_RX, INPUT);   
+    //    bitClear( DDRB, 0);
+  }
+}*/
+char bufst[70] = {0};
 //Read Vccc
 long readVcc() {
     long result;
@@ -155,6 +201,8 @@ void setup()
   wdt_reset();
   pinMode(4, INPUT);
   delay(1000);
+  //ledTx( false);
+  //ledRx( false);
 
 
 }
@@ -460,7 +508,7 @@ int check_sound()
 }
 int check_pir()
 {
-  if (millis() - PIRtimestamp > 3000)
+  if (millis() - PIRtimestamp > 1800)
   {
     //digitalRead(4); // read the value from the sensor
     int PIRnewStatus = digitalRead(4); // read the value from the sensor

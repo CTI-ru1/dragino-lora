@@ -35,7 +35,7 @@ RH_RF95 rf95;
 //ENCRYPT  encrypt_decrypt;
 
 //Define the LoRa frequency use for this client
-float frequency = 869.5;
+float frequency = 868.0;
 
 //MAX Clients support, more clients will increase time to establish network and polling
 
@@ -74,7 +74,7 @@ long delay_start_time =0;//
 long total_poll_time = 0;//
 int no_response_count = 0;//counter for no response from Client. 
 //Select gw
-int gateway_id = 1;
+int gateway_id = 3;
 int CrcFlag = 0;
 
 //Use dragino hostname 

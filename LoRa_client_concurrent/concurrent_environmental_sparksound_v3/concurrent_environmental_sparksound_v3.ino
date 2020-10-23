@@ -49,8 +49,51 @@
 #include <TH02_dev.h>
 #include <avr/wdt.h>
 
+
+
+
+void ledTx( boolean on)
+{
+  if( on)
+  {
+    // led on. The led is connected to VCC. Make pin low to turn led on.
+    pinMode( LED_BUILTIN_TX, OUTPUT);    // pin as output.
+    digitalWrite( LED_BUILTIN_TX, LOW);  // pin low
+
+    // These two lines will do the same:
+    //    bitSet( DDRD, 5);         
+    //    bitClear( PORTD, 5);       
+  }
+  else
+  {
+    // led off
+    // turn it off, by setting it as input, so the serial activity can't turn it on.
+    // If the internal pullup resistor is enabled or not, that does not matter,
+    // since the led it connected to VCC.
+    pinMode( LED_BUILTIN_TX, INPUT);
+
+    // This line will do the same:
+    //    bitClear( DDRD, 5);        // set pin as input
+  }
+}
+
+void ledRx( boolean on)
+{
+  if( on)
+  {
+    pinMode( LED_BUILTIN_RX, OUTPUT);
+    digitalWrite( LED_BUILTIN_RX, LOW);
+    //    bitSet( DDRB, 0);
+    //    bitClear( PORTB, 0);
+  }
+  else
+  {
+    pinMode( LED_BUILTIN_RX, INPUT);   
+    //    bitClear( DDRB, 0);
+  }
+}
 //Client ID to change
-int client_id = 0x09;
+int client_id = 0x06;
 
 
 SoftwareSerial ss(9, 8);
@@ -61,7 +104,7 @@ RH_RF95 rf95(ss);
 #define TIMEOUT 300000
 
 //Define the LoRa frequency use for this client
-float frequency = 868.0;
+float frequency = 869.5;
 
 // Client ID address in EEPROM.
 #define BAUDRATE 115200
@@ -93,7 +136,7 @@ unsigned long PIRtimestamp = millis();
 uint8_t gw = 1;
 
 
-char bufst[60] = {0};
+char bufst[70] = {0};
 //Read Vccc
 long readVcc() {
     long result;
@@ -153,8 +196,10 @@ void setup()
   wdt_reset();
   TSL2561.init();
   wdt_reset();
-  pinMode(4, INPUT);
+  pinMode(7, INPUT);
   delay(1000);
+  ledTx( false);
+  ledRx( false);
 
 
 }
@@ -298,8 +343,8 @@ void polling_detect(void)
         int rssi=rf95.lastRssi();
         
        // sent_count++;
-        char  data[60] = {0};//data to be sent
-        char  values[65] = {0};//data to be sent
+        char  data[70] = {0};//data to be sent
+        char  values[75] = {0};//data to be sent
         data[0] =  'D';
         data[1] =  'S';
         data[2] = gw;
@@ -319,7 +364,7 @@ void polling_detect(void)
 
         uint16_t crcData = CRC16((unsigned char*)data, dataLength); //calculate CRC
         wdt_reset();
-        unsigned char sendBuf[60] = {0};
+        unsigned char sendBuf[70] = {0};
         strcpy((char*)sendBuf, data); //copy data to sendbuf
 
         sendBuf[dataLength] = (unsigned char)crcData;
@@ -433,6 +478,7 @@ void read_sensors(int id,int rssi) {
   TH02.PowerOn();
   delay(50);
   float tem = TH02.ReadTemperature();
+    delay(50);
   float hum = TH02.ReadHumidity();
   TH02.PowerOff();
   delay(50);
@@ -468,12 +514,12 @@ int check_sound()
   Serial.print("Value:");
   Serial.println(value);
   float newStatus = 0.0;
-  newStatus=maximum+40;
-  /*newStatus = 0.12 * value + 44.0;
+  //newStatus=maximum;
+  newStatus = 0.12 * maximum + 44.0;
   if (newStatus <= 0)
   {
     newStatus = 32.00;
-  }*/
+  }
 
   Serial.print("Sound:");
   Serial.println(newStatus );
@@ -500,4 +546,3 @@ int check_pir()
   }
 
 }
-

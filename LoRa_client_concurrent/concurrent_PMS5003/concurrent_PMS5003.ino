@@ -50,13 +50,13 @@ RH_RF95 rf95(ss);
 #define TIMEOUT 300000
 
 //Define the LoRa frequency use for this client
-float frequency = 868.3;
+float frequency = 868.0;
 
 // Client ID address in EEPROM.
 #define BAUDRATE 115200
 
 int sent_count = 0;//Client send count, increase after sent data.
-int client_id = 0x08;
+int client_id = 0x06;
 
 // To resetart the network connection if does not receive data from the gw
 int rec_data = 0;
@@ -76,7 +76,7 @@ long total_time = 0;//check how long doesn't receive a server message
 
 
 //Select gw
-uint8_t gw = 5;
+uint8_t gw = 3;
 
 
 char bufst[60] = {0};
@@ -422,17 +422,20 @@ void read_sensors(int id,int rssi) {
   if( readPMSdata(&Serial1))
   {
     delay(100);
+    Serial1.end();
     //long vcc=readVcc();
    // int snr = rf95.lastSNR();   
 
   }
   else
   {
-     Serial.println("wrong read delay before new read ..");
-    delay(1000);
-  }
-      sprintf(bufst,"%d/pm1,%u+pm25,%u+pm10,%u+",id,datapm.pm10_standard,datapm.pm25_standard,datapm.pm100_standard);
+    Serial.println("wrong read delay before new read ..");
     Serial1.end();
+    //delay(1000);
+  }
+  
+  sprintf(bufst,"%d/pm1,%u+pm25,%u+pm10,%u+",id,datapm.pm10_standard,datapm.pm25_standard,datapm.pm100_standard);
+  
   delay(1000);
   wdt_reset();
 

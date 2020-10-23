@@ -50,13 +50,13 @@ RH_RF95 rf95(ss);
 #define TIMEOUT 600000
 
 //Define the LoRa frequency use for this client
-float frequency = 868.7;
+float frequency = 869.5;
 
 // Client ID address in EEPROM.
 #define BAUDRATE 115200
 
 int sent_count = 0;//Client send count, increase after sent data.
-int client_id = 0x07;
+int client_id = 0xb;
 
 // To resetart the network connection if does not receive data from the gw
 int rec_data = 0;
@@ -78,7 +78,7 @@ u8 buf[30];
 u16 value_PM[7];
 
 //Select gw
-uint8_t gw = 2;
+uint8_t gw = 1;
 
 
 char bufst[60] = {0};
@@ -478,5 +478,3 @@ void check_PM( u16 *value)
   
   delay(5000);
 }
-
-
