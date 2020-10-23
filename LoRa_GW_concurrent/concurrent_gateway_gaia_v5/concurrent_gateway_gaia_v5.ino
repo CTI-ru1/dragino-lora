@@ -81,6 +81,9 @@ int CrcFlag = 0;
 //String hostname;
 uint8_t buf[MAX_BUFFER] = {0};//
 
+// MQTT string formats
+const char msg_rssi_str[]   PROGMEM = {"rssi,%d+snr,%d+pl,%d+\0"};
+const char msg_status_str[] PROGMEM = {"gaia %u/msg,%u+ret,%u+pub,%u+inv,%u+crc,%u+cyc,%u+\0"};
 
 //Network status variables
 unsigned short msm[MAX_CLIENT]={0};
@@ -97,7 +100,7 @@ void setup()
      Bridge.begin(BAUDRATE);
      //Console.begin();
      if (!rf95.init())
-      Console.println("init failed");
+      Console.println(F("init failed"));
      //Setup ISM frequency
      wdt_reset();
      rf95.setFrequency(frequency);
@@ -148,7 +151,7 @@ uint16_t recdata( unsigned char* recbuf,int Length)
       CrcFlag = 1;
       crcdata = 0;
       recCRCData = 0;
-      Console.println("CRC++++"); 
+      Console.println(F("CRC++++"));
     }
     else
     {
@@ -169,7 +172,7 @@ void set_up_network(void)
      
          for( b = 0;b < 200;b++)//loop to set up network
          {
-            Console.println("send broadcast message"); 
+            Console.println(F("send broadcast message"));
             wdt_reset(); 
             rf95.send(broadcast , sizeof(broadcast));
              wdt_reset();
@@ -178,7 +181,7 @@ void set_up_network(void)
             if (rf95.waitAvailableTimeout(500))//Check the incoming message
             {  
                wdt_reset();
-              Console.println("Get an incoming message"); 
+              Console.println(F("Get an incoming message"));
               buf[0]='\0';
               uint8_t len = sizeof(buf);//
               if (rf95.recv(buf, &len))//
@@ -188,7 +191,7 @@ void set_up_network(void)
                   {                          
                     if(buf[3] == 0)// Error Message
                      {
-                      Console.println("Error");
+                      Console.println(F("Error"));
                      }
                     else
                      {
@@ -200,7 +203,7 @@ void set_up_network(void)
                          JoinAck[2] = gateway_id;
                          JoinAck[3] = buf[3];//Put Client ID 
                          int length = sizeof(JoinAck);//Get Data Length
-                         Console.print("Send Join ACK to client:");
+                         Console.print(F("Send Join ACK to client:"));
                          Console.println(buf[3]);  
                           wdt_reset();                        
                          rf95.send(JoinAck, sizeof(JoinAck));
@@ -216,7 +219,7 @@ void set_up_network(void)
  
                          if(clients[pos] == buf[3])
                          {
-                            Console.println("client already store");
+                            Console.println(F("client already store"));
                             break;
                          }
                        }
@@ -225,9 +228,9 @@ void set_up_network(void)
                           clients[client_numbers] = buf[3];//store the client id.  
                           client_numbers++;
                           
-                          Console.print("New client id:");
+                          Console.print(F("New client id:"));
                           Console.println(buf[3]);
-                          Console.print("Client numbers:");
+                          Console.print(F("Client numbers:"));
                           Console.println(client_numbers);
                           broadcast_retry = 0; //get a new client , reset retry count
                         }
@@ -261,7 +264,7 @@ void polling_clients(void)
       uint8_t query[4] = {0}; //Data Request Message
       if (clients[polling_count]==0)
       {
-        Console.println("the client connect here has leatf");
+        Console.println(F("the client connect here has leatf"));
         break;
       }
       query[3] = clients[polling_count] ;
@@ -272,7 +275,7 @@ void polling_clients(void)
           query[1] = 'R';
           query[2] = gateway_id;
           query[3] = clients[polling_count] ;// client id to be polled
-          Console.print("Request Data from client: ");
+          Console.print(F("Request Data from client: "));
           Console.print(query[3]);
 
          
@@ -285,7 +288,7 @@ void polling_clients(void)
           if (rf95.waitAvailableTimeout(2000))//
           {    
              wdt_reset();      
-             Console.println("Get incoming message ");
+             Console.println(F("Get incoming message "));
             memset(buf,0,sizeof(buf));
              //buf[0]='\0'; 
              uint8_t len = sizeof(buf);
@@ -306,9 +309,10 @@ void polling_clients(void)
                         //Console.println("DS data received");
                         char rssi[30];
                         wdt_reset();
-                        int n=sprintf(rssi,"rssi,%d+snr,%d+pl,%d+\0",rf95.lastRssi(),rf95.lastSNR(),len);
+                        int n = snprintf_P(rssi, sizeof(rssi), msg_rssi_str,
+                                           rf95.lastRssi(), rf95.lastSNR(), len);
                         int snr=rf95.lastSNR();
-                        Console.print("SNR");
+                        Console.print(F("SNR "));
                         Console.println(snr);
                         wdt_reset();
                         //char * mes=buf+5;
@@ -358,11 +362,11 @@ void polling_clients(void)
                 }
                 else
                 {
-                  //As it is if exist CRC error try always \
+                  //As it is if exist CRC error try always
                   //Change if exist CRC error try 3 tiems too
                   ncrc[polling_count]++;
                   no_response_count ++;
-                  Console.println( "CRC Error");
+                  Console.println(F("CRC Error"));
                 } 
              }
          }
@@ -374,10 +378,10 @@ void polling_clients(void)
            {
                no_response_count = 0;
            
-               Console.print( "Client is nor responds ID:");
+               Console.print(F("Client is nor responds ID:"));
                Console.println(clients[polling_count]);    
             
-               Console.print("Client number");
+               Console.print(F("Client number"));
                Console.println(client_numbers);
            }
         }      
@@ -390,9 +394,9 @@ void loop()
 {   
       if(network_setup_finish == 0)
       {
-        Console.println("set up the network "); 
+        Console.println(F("set up the network "));
         set_up_network();//set up network
-        Console.println("set up!!"); 
+        Console.println(F("set up!!"));
         poll_start_time = millis( );
         wdt_reset();   
 
@@ -403,7 +407,7 @@ void loop()
        
         polling_clients();// request data from clients
 
-        Console.print("Client number:");
+        Console.print(F("Client number:"));
         Console.println(client_numbers);
       }
   
@@ -421,7 +425,7 @@ void loop()
         
      if(millis() - poll_start_time > REFRESH_TIME)//refresh the network 
      {
-       Console.println( "Refresh network after timeout");
+       Console.println(F("Refresh network after timeout"));
        network_setup_finish = 0;
        total_poll_time = 0;
        
@@ -431,7 +435,9 @@ void loop()
        for(i=0;i< client_numbers;i++)
        {
            //sprintf(buf,"gaia %u/msm,%u+pub,%u+\0",i+1,msm[i],pub[i]);
-           sprintf(buf,"gaia %u/msg,%u+ret,%u+pub,%u+inv,%u+crc,%u+cyc,%u+\0",clients[i],msm[i],nret[i],pub[i],nmal[i],ncrc[i],ncyl);
+           snprintf_P(buf, sizeof(buf), msg_status_str,
+                      clients[i], msm[i], nret[i],
+                      pub[i], nmal[i], ncrc[i], ncyl);
           // sprintf(buf,"gaia");
            int i=0;
            while(i<sizeof(buf))
@@ -457,11 +463,11 @@ void loop()
 int sendMQTT(char * MQbuf) {
   // Launch "curl" command and get Arduino ascii art logo from the network
   // curl is command line program for transferring data using different internet protocols
-  Console.println("SendMqtt");  
+  Console.println(F("SendMqtt"));
  
   Process p;    // Create a process and call it "p"
   int re=p.runShellCommand(MQbuf);
-  Console.print("Return:");
+  Console.print(F("Return:"));
   Console.println(re);
   // Ensure the last bit of data is sent.*/
   Console.flush();
