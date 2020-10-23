@@ -50,6 +50,7 @@
 //#define USE_PROGMEM
 // Disable F macro
 #ifndef USE_PROGMEM
+#undef F
 #define F(x) x
 #endif
 // Disable debugging
@@ -89,11 +90,11 @@ int gateway_id  = 3;
 
 // MQTT string formats
 #ifndef USE_PROGMEM
-const char msg_rssi_str[]   = {"rssi,%d+snr,%d+pl,%d+\0"};
-const char msg_status_str[] = {"gaia %u/msg,%u+ret,%u+pub,%u+inv,%u+crc,%u+cyc,%u+\0"};
+const char msg_rssi_str[]   = {"rssi,%d+snr,%d+pl,%d+"};
+const char msg_status_str[] = {"gaia %u/msg,%u+ret,%u+pub,%u+inv,%u+crc,%u+cyc,%u+"};
 #else
-const char msg_rssi_str[] PROGMEM   = {"rssi,%d+snr,%d+pl,%d+\0"};
-const char msg_status_str[] PROGMEM = {"gaia %u/msg,%u+ret,%u+pub,%u+inv,%u+crc,%u+cyc,%u+\0"};
+const char msg_rssi_str[] PROGMEM   = {"rssi,%d+snr,%d+pl,%d+"};
+const char msg_status_str[] PROGMEM = {"gaia %u/msg,%u+ret,%u+pub,%u+inv,%u+crc,%u+cyc,%u+"};
 #endif
 
 // String sensor_data = "";
@@ -164,7 +165,8 @@ uint16_t CRC16(uint8_t* pBuffer, uint32_t length)
     }
     return wCRC16;
 }
-uint16_t recdata(unsigned char* recbuf, int Length)
+
+void recdata(unsigned char* recbuf, int Length)
 {
     uint16_t crcdata    = 0;
     uint16_t recCRCData = 0;
@@ -195,7 +197,7 @@ void set_up_network(void)
     broadcast[2] = gateway_id;
     broadcast[3] = ':';
 
-    int length = sizeof(broadcast);  // get broadcast message length
+    //int length = sizeof(broadcast);  // get broadcast message length
 
     // loop to set up network
     for (b = 0; b < 200; b++) {
@@ -230,7 +232,7 @@ void set_up_network(void)
                             JoinAck[2] = gateway_id;
                             JoinAck[3] = buf[3];  // Put Client ID
 
-                            int length = sizeof(JoinAck);  // Get Data Length
+                            //int length = sizeof(JoinAck);  // Get Data Length
 
                             Console.print(F("Sent Join ACK to client: "));
                             Console.println(buf[3]);
@@ -242,7 +244,7 @@ void set_up_network(void)
                             broadcast_retry = 0;
                             delay(500);
                         }
-                        int pos;
+                        unsigned int pos;
                         // check if this client already stored
                         for (pos = 0; pos < sizeof(clients); pos++) {
                             if (clients[pos] == buf[3]) {
@@ -286,12 +288,12 @@ void polling_clients(void)
     for (polling_count = 0; polling_count < client_numbers; polling_count++) {
         wdt_reset();
         // delay(POLL_NODE_PERIODE);
-        uint8_t query[4] = {0};  // Data Request Message
+        //uint8_t query[4] = {0};  // Data Request Message
         if (clients[polling_count] == 0) {
             Console.println(F("The client connected here has left"));
             break;
         }
-        query[3] = clients[polling_count];
+        //query[3] = clients[polling_count];
         // Send a data requst message
         for (int poll_cnt = 0; poll_cnt < MAX_REMOVE_RETRY; poll_cnt++) {
             uint8_t query[4] = {0};  // Data Request Message
@@ -304,7 +306,8 @@ void polling_clients(void)
             Console.print(F("Request Data from client: "));
             Console.println(query[3]);
 
-            int length = sizeof(query);  // Get Length
+            //int length = sizeof(query);  // Get Length
+
             wdt_reset();
             rf95.send(query, sizeof(query));  // send poll message
             wdt_reset();
@@ -374,7 +377,7 @@ void polling_clients(void)
                             // Increse the message receive correct for each node
                             msm[polling_count]++;
 
-                            if (sendMQTT(buf) == 250) {
+                            if (sendMQTT(reinterpret_cast<char*>(buf)) == 250) {
                                 // If the publish is corect increass the counter for  the specific
                                 // node
                                 pub[polling_count]++;
@@ -455,21 +458,21 @@ void loop()
         for (i = 0; i < client_numbers; i++) {
             // sprintf(buf,"gaia %u/msm,%u+pub,%u+\0",i+1,msm[i],pub[i]);
 #ifndef USE_PROGMEM
-            int n = snprintf(buf, sizeof(buf), msg_status_str, clients[i], msm[i], nret[i], pub[i],
-                             nmal[i], ncrc[i], ncyl);
+            snprintf(reinterpret_cast<char*>(buf), sizeof(buf), msg_status_str, clients[i], msm[i], nret[i], pub[i],
+                     nmal[i], ncrc[i], ncyl);
 #else
-            int n = snprintf_P(buf, sizeof(buf), msg_status_str, clients[i], msm[i], nret[i],
-                               pub[i], nmal[i], ncrc[i], ncyl);
+            snprintf_P(reinterpret_cast<char*>(buf), sizeof(buf), msg_status_str, clients[i], msm[i], nret[i],
+                       pub[i], nmal[i], ncrc[i], ncyl);
 #endif
             // sprintf(buf,"gaia");
-            int i = 0;
+            unsigned int i = 0;
             while (i < sizeof(buf)) {
                 Console.print((char)buf[i]);
                 i++;
             }
             Console.println();
 
-            sendMQTT(buf);
+            sendMQTT(reinterpret_cast<char*>(buf));
             //  delay(10);
         }
         ncyl = 0;
