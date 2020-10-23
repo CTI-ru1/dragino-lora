@@ -1,0 +1,9 @@
+﻿---
+BasedOnStyle: Google
+AlignConsecutiveAssignments: 'true'
+BreakBeforeBraces: Linux
+ColumnLimit: '100'
+IndentWidth: '4'
+Language: Cpp
+
+...
